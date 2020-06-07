@@ -112,8 +112,6 @@ func TestHandler_handleOneTimePasswordGet(t *testing.T) {
 				user := mocks.NewMockUser(mockCtrl)
 				user.EXPECT().SetEmail("user@example.com").Times(1)
 				user.EXPECT().SetPassword("").Times(1)
-				user.EXPECT().SetOrganizations(43).Times(1)
-				user.EXPECT().Organizations().Return([]int{43}).Times(1)
 				user.EXPECT().Id().Times(1).Return(34)
 				user.EXPECT().Email().Times(1).Return("user@example.com")
 				return user
@@ -137,8 +135,6 @@ func TestHandler_handleOneTimePasswordGet(t *testing.T) {
 				user := mocks.NewMockUser(mockCtrl)
 				user.EXPECT().SetEmail("user@example.com").Times(1)
 				user.EXPECT().SetPassword("").Times(1)
-				user.EXPECT().SetOrganizations(43).Times(1)
-				user.EXPECT().Organizations().Return([]int{43}).Times(0)
 				return user
 			},
 			addUserCount:                     1,

@@ -85,7 +85,6 @@ func (handler *OneTimePasswordHandler) handleOneTimePasswordGet(w http.ResponseW
 		newUser := handler.helper.NewEmptyUser()
 		newUser.SetEmail(email)
 		newUser.SetPassword("") //This is a blank password that prevents being able to login
-		newUser.SetOrganizations(organizationId)
 
 		//Now store it
 		user, err = handler.helper.AddUser(newUser)
@@ -93,16 +92,8 @@ func (handler *OneTimePasswordHandler) handleOneTimePasswordGet(w http.ResponseW
 			utils.ReturnJsonError(w, http.StatusForbidden, err)
 			return
 		}
-		//Add the users to the org
-		for _, orgId := range user.Organizations() {
-			err = handler.helper.AddUserToOrganization(newUser, orgId)
-			if err != nil {
-				utils.ReturnJsonError(w, http.StatusForbidden, err)
-				return
-			}
-		}
 
-		//Make sure it created an id
+		err = handler.helper.AddUserToOrganization(user, organizationId)
 		if err != nil {
 			utils.ReturnJsonError(w, http.StatusForbidden, err)
 			return
