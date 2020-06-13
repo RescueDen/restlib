@@ -21,9 +21,6 @@ type Handler struct {
 	allowUserCreation bool
 }
 
-/**
- * This struct is used
- */
 func NewHandler(userHelper Helper, allowUserCreation bool) *Handler {
 	//Build a new User Handler
 	handler := Handler{
@@ -34,9 +31,6 @@ func NewHandler(userHelper Helper, allowUserCreation bool) *Handler {
 	return &handler
 }
 
-/**
-Function used to get routes
-*/
 func (handler *Handler) GetRoutes() []routing.Route {
 
 	//Provide the user update and documentation by default
