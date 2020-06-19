@@ -6,7 +6,10 @@ package passwords
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"time"
+
+	"github.com/reaction-eng/restlib/utils"
 
 	"github.com/reaction-eng/restlib/configuration"
 	"github.com/reaction-eng/restlib/email"
@@ -184,7 +187,8 @@ func (repo *ResetRepoSql) IssueResetRequest(token string, userId int, emailAddre
 	//execute the statement//(userId,name,input,flow)- "(userId,email, token, issued)
 	_, err := repo.addRequestStatement.Exec(userId, emailAddress, token, time.Now(), reset)
 	if err != nil {
-		return err
+		log.Println(utils.Error, "IssueResetRequest", err)
+		return utils.DataBaseError
 	}
 
 	//Make the email header
@@ -211,7 +215,8 @@ func (repo *ResetRepoSql) IssueActivationRequest(token string, userId int, email
 	//execute the statement//(userId,name,input,flow)- "(userId,email, token, issued)
 	_, err := repo.addRequestStatement.Exec(userId, emailAddress, token, time.Now(), activation)
 	if err != nil {
-		return err
+		log.Println(utils.Error, "IssueActivationRequest", err)
+		return utils.DataBaseError
 	}
 
 	//Make the email header
@@ -237,7 +242,8 @@ func (repo *ResetRepoSql) IssueOneTimePasswordRequest(token string, userId int, 
 	//Now add it to the database
 	_, err := repo.addRequestStatement.Exec(userId, emailAddress, token, time.Now(), oneTimePassword)
 	if err != nil {
-		return err
+		log.Println(utils.Error, "IssueOneTimePasswordRequest", err)
+		return utils.DataBaseError
 	}
 
 	//Make the email header
@@ -336,7 +342,11 @@ func (repo *ResetRepoSql) UseToken(id int) error {
 
 	//Remove the token
 	_, err := repo.rmRequestStatement.Exec(id)
-	return err
+	if err != nil {
+		log.Println(utils.Error, "IssueOneTimePasswordRequest", err)
+		return utils.DataBaseError
+	}
+	return nil
 }
 
 func (repo *ResetRepoSql) CleanUp() {

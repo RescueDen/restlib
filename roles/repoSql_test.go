@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/reaction-eng/restlib/utils"
+
 	"github.com/reaction-eng/restlib/roles"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -117,7 +119,7 @@ func TestGetPermissions(t *testing.T) {
 			setupPermTable: func(mockPermTable *mocks.MockPermissionTable) {
 			},
 			expectedPermissions: nil,
-			expectedError:       errors.New("can't access db"),
+			expectedError:       utils.DataBaseError,
 		},
 		{
 			comment:           "scan error",
@@ -126,7 +128,7 @@ func TestGetPermissions(t *testing.T) {
 			setupPermTable: func(mockPermTable *mocks.MockPermissionTable) {
 			},
 			expectedPermissions: nil,
-			expectedError:       errors.New("sql: Scan error on column index 0, name \"rowId\": converting driver.Value type string (\"alphea beta\") to a int: invalid syntax"),
+			expectedError:       utils.DataBaseError,
 		},
 		{
 			comment:           "row error",
@@ -135,7 +137,7 @@ func TestGetPermissions(t *testing.T) {
 			setupPermTable: func(mockPermTable *mocks.MockPermissionTable) {
 			},
 			expectedPermissions: nil,
-			expectedError:       errors.New("db error"),
+			expectedError:       utils.DataBaseError,
 		},
 	}
 
@@ -203,21 +205,21 @@ func TestGetRoleIds(t *testing.T) {
 			getUserRolesRows:  nil,
 			getUserRolesError: errors.New("can't access db"),
 			expectedRoles:     nil,
-			expectedError:     errors.New("can't access db"),
+			expectedError:     utils.DataBaseError,
 		},
 		{
 			comment:           "scan error",
 			getUserRolesRows:  sqlmock.NewRows([]string{"rowId"}).AddRow("alphea beta"),
 			getUserRolesError: nil,
 			expectedRoles:     nil,
-			expectedError:     errors.New("sql: Scan error on column index 0, name \"rowId\": converting driver.Value type string (\"alphea beta\") to a int: invalid syntax"),
+			expectedError:     utils.DataBaseError,
 		},
 		{
 			comment:           "row error",
 			getUserRolesRows:  sqlmock.NewRows([]string{"rowId"}).AddRow(10).RowError(0, errors.New("db error")),
 			getUserRolesError: nil,
 			expectedRoles:     nil,
-			expectedError:     errors.New("db error"),
+			expectedError:     utils.DataBaseError,
 		},
 	}
 
@@ -328,7 +330,7 @@ func TestSetRolesByRoleId(t *testing.T) {
 			expectClear:       false,
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 			},
-			expectedError: errors.New("get user role error"),
+			expectedError: utils.DataBaseError,
 		},
 		{
 			comment:           "can't clear",
@@ -339,7 +341,7 @@ func TestSetRolesByRoleId(t *testing.T) {
 			expectClear:       true,
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 			},
-			expectedError: errors.New("can't clear error"),
+			expectedError: utils.DataBaseError,
 		},
 		{
 			comment:           "can't add user rol error",
@@ -351,7 +353,7 @@ func TestSetRolesByRoleId(t *testing.T) {
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 				(*sqlMock).ExpectExec("INSERT INTO "+roles.TableName).WithArgs(34, 1000, 3).WillReturnResult(sqlmock.NewResult(0, 1)).WillReturnError(errors.New("can't add user error"))
 			},
-			expectedError: errors.New("can't add user error"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 
@@ -494,7 +496,7 @@ func TestSetRolesByRoleName(t *testing.T) {
 			expectClear:       false,
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 			},
-			expectedError: errors.New("get user role error"),
+			expectedError: utils.DataBaseError,
 		},
 		{
 			comment:    "can't clear",
@@ -511,7 +513,7 @@ func TestSetRolesByRoleName(t *testing.T) {
 			expectClear:       true,
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 			},
-			expectedError: errors.New("can't clear error"),
+			expectedError: utils.DataBaseError,
 		},
 		{
 			comment:    "can't add user rol error",
@@ -529,7 +531,7 @@ func TestSetRolesByRoleName(t *testing.T) {
 			setupAddUserRole: func(sqlMock *sqlmock.Sqlmock) {
 				(*sqlMock).ExpectExec("INSERT INTO "+roles.TableName).WithArgs(34, 1000, 3).WillReturnResult(sqlmock.NewResult(0, 1)).WillReturnError(errors.New("can't add user error"))
 			},
-			expectedError: errors.New("can't add user error"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/reaction-eng/restlib/utils"
+
 	"github.com/reaction-eng/restlib/mocks"
 
 	"github.com/reaction-eng/restlib/preferences"
@@ -126,7 +128,7 @@ func TestRepoSql_GetPreferences(t *testing.T) {
 			settingString:       ``,
 			queryError:          errors.New("new db error"),
 			expectedPreferences: nil,
-			expectedError:       errors.New("new db error"),
+			expectedError:       utils.DataBaseError,
 		},
 		{
 			comment:       "should repair missing parameters",
@@ -146,7 +148,7 @@ func TestRepoSql_GetPreferences(t *testing.T) {
 			settingString:       `{{`,
 			queryError:          nil,
 			expectedPreferences: nil,
-			expectedError:       errors.New(`sql: Scan error on column index 0, name "setting": invalid character '{' looking for beginning of object key string`),
+			expectedError:       utils.DataBaseError,
 		},
 	}
 
@@ -221,7 +223,7 @@ func TestRepoSql_SetPreferences(t *testing.T) {
 				},
 			},
 			execError:     errors.New("error from db set"),
-			expectedError: errors.New("error from db set"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 

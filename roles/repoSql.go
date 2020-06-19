@@ -5,7 +5,10 @@ package roles
 
 import (
 	"database/sql"
+	"log"
 	"sort"
+
+	"github.com/reaction-eng/restlib/utils"
 
 	"github.com/reaction-eng/restlib/users"
 )
@@ -91,7 +94,8 @@ func (repo *RepoSql) GetPermissions(user users.User, organizationId int) (*Permi
 
 	rows, err := repo.getUserRoles.Query(user.Id(), organizationId)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetPermissions", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Rows is the result of a query. Its cursor starts before  the first row of the result set. Use Next to advance through the rows:
@@ -101,7 +105,8 @@ func (repo *RepoSql) GetPermissions(user users.User, organizationId int) (*Permi
 		var roleId int
 		err = rows.Scan(&roleId)
 		if err != nil {
-			return nil, err
+			log.Println(utils.Error, "GetPermissions", err)
+			return nil, utils.DataBaseError
 		}
 
 		//Get the permissions
@@ -113,12 +118,14 @@ func (repo *RepoSql) GetPermissions(user users.User, organizationId int) (*Permi
 	}
 	err = rows.Close()
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetPermissions", err)
+		return nil, utils.DataBaseError
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetPermissions", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Get the permissions from
@@ -134,7 +141,8 @@ func (repo *RepoSql) GetRoleIds(user users.User, organizationId int) ([]int, err
 
 	rows, err := repo.getUserRoles.Query(user.Id(), organizationId)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetRoleIds", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Rows is the result of a query. Its cursor starts before  the first row of the result set. Use Next to advance through the rows:
@@ -144,18 +152,21 @@ func (repo *RepoSql) GetRoleIds(user users.User, organizationId int) ([]int, err
 		var roleId int
 		err = rows.Scan(&roleId)
 		if err != nil {
-			return nil, err
+			log.Println(utils.Error, "GetRoleIds", err)
+			return nil, utils.DataBaseError
 		}
 		//Push back
 		roles = append(roles, roleId)
 	}
 	err = rows.Close()
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetRoleIds", err)
+		return nil, utils.DataBaseError
 	}
 	err = rows.Err()
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetRoleIds", err)
+		return nil, utils.DataBaseError
 	}
 
 	return roles, nil
@@ -176,14 +187,16 @@ func (repo *RepoSql) SetRolesByRoleId(user users.User, organizationId int, roles
 		//Clear all of the roles
 		_, err := repo.clearUserRoles.Exec(userId, organizationId)
 		if err != nil {
-			return err
+			log.Println(utils.Error, "SetRolesByRoleId", err)
+			return utils.DataBaseError
 		}
 
 		//Now add each role
 		for _, roleId := range roles {
 			_, err = repo.addUserRole.Exec(userId, organizationId, roleId)
 			if err != nil {
-				return err
+				log.Println(utils.Error, "SetRolesByRoleId", err)
+				return utils.DataBaseError
 			}
 		}
 

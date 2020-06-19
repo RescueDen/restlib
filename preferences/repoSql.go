@@ -5,6 +5,9 @@ package preferences
 
 import (
 	"database/sql"
+	"log"
+
+	"github.com/reaction-eng/restlib/utils"
 
 	"github.com/reaction-eng/restlib/users"
 )
@@ -79,7 +82,8 @@ func (repo *RepoSql) GetPreferences(user users.User) (*Preferences, error) {
 	//Get the settings from the db
 	settings, err := repo.getSettingsFromDb(user)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetPreferences", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Make sure that the settings is valid
@@ -106,9 +110,9 @@ func (repo *RepoSql) getSettingsFromDb(user users.User) (*SettingGroup, error) {
 		return setting, nil
 	} else if err == sql.ErrNoRows {
 		return newSettingGroup(), nil
-
 	} else {
-		return nil, err
+		log.Println(utils.Error, "getSettingsFromDb", err)
+		return nil, utils.DataBaseError
 	}
 }
 
@@ -116,6 +120,11 @@ func (repo *RepoSql) SetPreferences(user users.User, userSetting *SettingGroup) 
 
 	//Now add the //(asmId,type,Date, comments)
 	_, err := repo.setSettingIntoDbCmd.Exec(user.Id(), userSetting)
+
+	if err != nil {
+		log.Println(utils.Error, "SetPreferences", err)
+		err = utils.DataBaseError
+	}
 
 	return &Preferences{
 		Settings: userSetting,

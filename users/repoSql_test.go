@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reaction-eng/restlib/utils"
+
 	"github.com/reaction-eng/restlib/mocks"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -263,7 +265,7 @@ func TestResetRepoSql_GetUserByEmail(t *testing.T) {
 		{
 			comment:       "get org error should return nil",
 			emailInput:    "user@example.com",
-			expectedError: errors.New("could not get org info"),
+			expectedError: utils.DataBaseError,
 			query: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs("user@example.com").
@@ -359,7 +361,7 @@ func TestResetRepoSql_GetUser(t *testing.T) {
 		{
 			comment:       "other db error",
 			idInput:       43,
-			expectedError: errors.New("other db error"),
+			expectedError: utils.DataBaseError,
 			query: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs(43).
@@ -511,7 +513,7 @@ func TestResetRepoSql_GetUser(t *testing.T) {
 		{
 			comment:       "org db error",
 			idInput:       43,
-			expectedError: errors.New("org db error"),
+			expectedError: utils.DataBaseError,
 			query: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs(43).
@@ -592,7 +594,7 @@ func TestResetRepoSql_ListUsers(t *testing.T) {
 			onlyActive:    false,
 			orgList:       nil,
 			expectedUsers: nil,
-			expectedError: errors.New("db broken"),
+			expectedError: utils.DataBaseError,
 			query: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WillReturnError(errors.New("db broken"))
@@ -603,7 +605,7 @@ func TestResetRepoSql_ListUsers(t *testing.T) {
 			onlyActive:    false,
 			orgList:       nil,
 			expectedUsers: []int{32, 52},
-			expectedError: errors.New("row error"),
+			expectedError: utils.DataBaseError,
 			query: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WillReturnRows(
@@ -786,7 +788,7 @@ func TestResetRepoSql_AddUser(t *testing.T) {
 				user.EXPECT().Password().Return("hashed password").Times(1)
 				return user
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 			checkUserStatementExec: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs("user@example.info").
@@ -816,7 +818,7 @@ func TestResetRepoSql_AddUser(t *testing.T) {
 				user.EXPECT().Password().Return("hashed password").Times(1)
 				return user
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 			checkUserStatementExec: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs("user@example.info").
@@ -848,7 +850,7 @@ func TestResetRepoSql_AddUser(t *testing.T) {
 				user.EXPECT().Password().Return("hashed password").Times(1)
 				return user
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 			checkUserStatementExec: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs("user@example.info").
@@ -880,7 +882,7 @@ func TestResetRepoSql_AddUser(t *testing.T) {
 				user.EXPECT().Password().Return("hashed password").Times(0)
 				return user
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 			checkUserStatementExec: func(query *sqlmock.ExpectedQuery) {
 				query.
 					WithArgs("user@example.info").
@@ -969,7 +971,7 @@ func TestResetRepoSql_UpdateUser(t *testing.T) {
 					WillReturnError(errors.New("db error"))
 
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 
@@ -1032,7 +1034,7 @@ func TestResetRepoSql_ActivateUser(t *testing.T) {
 					WillReturnError(errors.New("db error"))
 
 			},
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 
@@ -1097,7 +1099,7 @@ func TestResetRepoSql_AddUserToOrganization(t *testing.T) {
 
 			},
 			orgId:         3234,
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 
@@ -1162,7 +1164,7 @@ func TestResetRepoSql_RemoveUserFromOrganization(t *testing.T) {
 
 			},
 			orgId:         3234,
-			expectedError: errors.New("db error"),
+			expectedError: utils.DataBaseError,
 		},
 		{
 			comment: "no rows errors",
@@ -1191,7 +1193,7 @@ func TestResetRepoSql_RemoveUserFromOrganization(t *testing.T) {
 					WillReturnResult(sqlmock.NewErrorResult(errors.New("errors from results")))
 			},
 			orgId:         3234,
-			expectedError: errors.New("errors from results"),
+			expectedError: utils.DataBaseError,
 		},
 	}
 

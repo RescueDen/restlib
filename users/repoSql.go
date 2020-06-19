@@ -6,6 +6,7 @@ package users
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"strings"
 	"time"
 
@@ -192,7 +193,8 @@ func (repo *RepoSql) GetUserByEmail(email string) (User, error) {
 	if err == sql.ErrNoRows {
 		return nil, UserNotFound
 	} else if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetUserByEmail", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Store if this is activated
@@ -201,7 +203,8 @@ func (repo *RepoSql) GetUserByEmail(email string) (User, error) {
 
 	orgIds, err := repo.listUserOrganizations(user.Id_)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetUserByEmail", err)
+		return nil, utils.DataBaseError
 	}
 	user.SetOrganizations(orgIds...)
 
@@ -224,7 +227,8 @@ func (repo *RepoSql) GetUser(id int) (User, error) {
 	if err == sql.ErrNoRows {
 		return nil, UserNotFound
 	} else if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetUser", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Store if this is activated
@@ -233,7 +237,8 @@ func (repo *RepoSql) GetUser(id int) (User, error) {
 
 	orgIds, err := repo.listUserOrganizations(user.Id_)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "GetUser", err)
+		return nil, utils.DataBaseError
 	}
 	user.SetOrganizations(orgIds...)
 
@@ -250,7 +255,8 @@ func (repo *RepoSql) ListUsers(onlyActive bool, organizations []int) ([]int, err
 	//Get the value //id int NOT NULL AUTO_INCREMENT, email TEXT, password TEXT, PRIMARY KEY (id)
 	rows, err := repo.listAllUsersStatement.Query()
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "AddUser", err)
+		return nil, utils.DataBaseError
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -260,7 +266,8 @@ func (repo *RepoSql) ListUsers(onlyActive bool, organizations []int) ([]int, err
 
 		err := rows.Scan(&id, &activationDate)
 		if err != nil {
-			return nil, err
+			log.Println(utils.Error, "AddUser", err)
+			return nil, utils.DataBaseError
 		}
 
 		//Append the row
@@ -269,6 +276,10 @@ func (repo *RepoSql) ListUsers(onlyActive bool, organizations []int) ([]int, err
 		}
 	}
 	err = rows.Err()
+	if err != nil {
+		log.Println(utils.Error, "ListUsers", err)
+		err = utils.DataBaseError
+	}
 
 	return list, err
 }
@@ -289,7 +300,8 @@ func (repo *RepoSql) AddUser(newUser User) (User, error) {
 
 	//Check for error
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "AddUser", err)
+		return nil, utils.DataBaseError
 	}
 
 	//Now look up the person by email
@@ -300,6 +312,11 @@ func (repo *RepoSql) AddUser(newUser User) (User, error) {
 func (repo *RepoSql) UpdateUser(user User) (User, error) {
 	//execute the statement//"UPDATE  " + tableName + " SET email = ?, password = ? WHERE id = ?"
 	_, err := repo.updateUserStatement.Exec(user.Email(), user.Password(), user.Id())
+
+	if err != nil {
+		log.Println(utils.Error, "UpdateUser", err)
+		err = utils.DataBaseError
+	}
 
 	return user, err
 }
@@ -313,23 +330,37 @@ func (repo *RepoSql) ActivateUser(user User) error {
 
 	//Just update the info//"UPDATE  " + tableName + " SET activation = $1 WHERE id = $2")
 	_, err := repo.activateStatement.Exec(actTime, user.Id())
+
+	if err != nil {
+		log.Println(utils.Error, "ActivateUser", err)
+		err = utils.DataBaseError
+	}
+
 	return err
 }
 
 func (repo *RepoSql) AddUserToOrganization(user User, orgId int) error {
 	_, err := repo.addUserToOrganization.Exec(user.Id(), orgId, time.Now())
+
+	if err != nil {
+		log.Println(utils.Error, "AddUserToOrganization", err)
+		err = utils.DataBaseError
+	}
+
 	return err
 }
 
 func (repo *RepoSql) RemoveUserFromOrganization(user User, orgId int) error {
 	result, err := repo.removeUserFromOrganization.Exec(user.Id(), orgId)
 	if err != nil {
-		return err
+		log.Println(utils.Error, "RemoveUserFromOrganization", err)
+		return utils.DataBaseError
 	}
 
 	rowsChange, err := result.RowsAffected()
 	if err != nil {
-		return err
+		log.Println(utils.Error, "RemoveUserFromOrganization", err)
+		return utils.DataBaseError
 	}
 	if rowsChange < 1 {
 		return errors.New("no_organizations_removed")
@@ -344,7 +375,8 @@ func (repo *RepoSql) listUserOrganizations(userId int) ([]int, error) {
 
 	rows, err := repo.getUserOrganizations.Query(userId)
 	if err != nil {
-		return nil, err
+		log.Println(utils.Error, "listUserOrganizations", err)
+		return nil, utils.DataBaseError
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -352,12 +384,18 @@ func (repo *RepoSql) listUserOrganizations(userId int) ([]int, error) {
 
 		err := rows.Scan(&orgId)
 		if err != nil {
-			return nil, err
+			log.Println(utils.Error, "listUserOrganizations", err)
+			return nil, utils.DataBaseError
 		}
 
 		list = append(list, orgId)
 	}
 	err = rows.Err()
+
+	if err != nil {
+		log.Println(utils.Error, "listUserOrganizations", err)
+		err = utils.DataBaseError
+	}
 
 	return list, err
 

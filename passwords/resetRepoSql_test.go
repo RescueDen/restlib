@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reaction-eng/restlib/utils"
+
 	"github.com/reaction-eng/restlib/email"
 
 	"github.com/reaction-eng/restlib/passwords"
@@ -164,14 +166,14 @@ func TestResetRepoSql_IssueResetRequest(t *testing.T) {
 			"exampleToken123",
 			100,
 			"test@example.com",
-			errors.New("exec error"),
+			utils.DataBaseError,
 			nil,
 		},
 		{
 			"exampleToken123",
 			100,
 			"test@example.com",
-			errors.New("exec error"),
+			utils.DataBaseError,
 			errors.New("email error"),
 		},
 		{
@@ -250,14 +252,14 @@ func TestResetRepoSql_IssueActivationRequest(t *testing.T) {
 			"exampleToken123",
 			100,
 			"test@example.com",
-			errors.New("exec error"),
+			utils.DataBaseError,
 			nil,
 		},
 		{
 			"exampleToken123",
 			100,
 			"test@example.com",
-			errors.New("exec error"),
+			utils.DataBaseError,
 			errors.New("email error"),
 		},
 		{
@@ -661,7 +663,7 @@ func TestResetRepoSql_UseToken(t *testing.T) {
 		},
 		{
 			100,
-			errors.New("exampleError"),
+			utils.DataBaseError,
 		},
 	}
 
