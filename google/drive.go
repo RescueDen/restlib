@@ -169,6 +169,7 @@ func (gog *Drive) BuildListing(dirId string, previewLength int, includeFilter fu
 	files, err := gog.connection.Files.List().
 		SupportsTeamDrives(true).
 		IncludeTeamDriveItems(true).
+		Fields("*").
 		Q("'" + dirId + "' in parents and trashed=false").
 		Do()
 
@@ -219,6 +220,10 @@ func (gog *Drive) BuildListing(dirId string, previewLength int, includeFilter fu
 				if date != nil {
 					doc.Date = date
 				}
+
+				//check to see if any metadata is provided
+				doc.Metadata = make(map[string]string)
+				json.Unmarshal([]byte(item.Description), &doc.Metadata)
 
 				//Store it
 				dir.Items = append(dir.Items, doc)

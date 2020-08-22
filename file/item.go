@@ -27,6 +27,8 @@ type Item struct {
 
 	//Also Keep the parent Id
 	ParentId string `json:"parentId"`
+
+	Metadata map[string]string `json:"metadata"`
 }
 
 // ByAge implements sort.Interface for []Person based on
