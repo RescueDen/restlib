@@ -155,6 +155,11 @@ func (gog *Drive) BuildListing(dirId string, previewLength int, includeFilter fu
 	dir.Id = folderInfo.Id
 	dir.Name = name
 
+	// hide the listing if it starts with a _
+	if strings.HasPrefix(dir.Name, "_") {
+		dir.HideListing = true
+	}
+
 	//If there is a date add it
 	if date != nil {
 		dir.Date = date
